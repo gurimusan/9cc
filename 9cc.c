@@ -31,7 +31,7 @@ void tokenize(char *p) {
             continue;
         }
 
-        if (*p == '+' || *p == '-' || *p == '*' || *p == '/') {
+        if (*p == '+' || *p == '-' || *p == '*' || *p == '/' || *p == '(' || *p == ')') {
             tokens[i].ty = *p;
             tokens[i].input = p;
             i++;
@@ -91,19 +91,43 @@ void error(char *fmt, ...) {
   exit(1);
 }
 
-Node *number() {
+Node *mul();
+Node *term();
+Node *expr();
+
+Node *term() {
     if (tokens[pos].ty == TK_NUM) {
         return new_node_num(tokens[pos++].val);
     }
-    error("想定しないトークンです: %s",
+    if (tokens[pos].ty == '(') {
+        pos++;
+        Node *node = expr();
+        if (tokens[pos].ty != ')') {
+            error("開きカッコに対応する閉じカッコがありません: %s",
+                  tokens[pos].input);
+        }
+        pos++;
+        return node;
+    }
+    error("数値でも開きカッコでもないトークンです: %s",
           tokens[pos].input);
 }
 
-Node *expr() {
-    Node *lhs = number();
-    if (tokens[pos].ty == TK_EOF) {
-        return lhs;
+Node *mul() {
+    Node *lhs = term();
+    if (tokens[pos].ty == '*') {
+        pos++;
+        return new_node('*', lhs, mul());
     }
+    if (tokens[pos].ty == '/') {
+        pos++;
+        return new_node('/', lhs, mul());
+    }
+    return lhs;
+}
+
+Node *expr() {
+    Node *lhs = mul();
     if (tokens[pos].ty == '+') {
         pos++;
         return new_node('+', lhs, expr());
@@ -112,16 +136,7 @@ Node *expr() {
         pos++;
         return new_node('-', lhs, expr());
     }
-    if (tokens[pos].ty == '*') {
-        pos++;
-        return new_node('*', lhs, expr());
-    }
-    if (tokens[pos].ty == '/') {
-        pos++;
-        return new_node('/', lhs, expr());
-    }
-    error("想定しないトークンです: %s",
-          tokens[pos].input);
+    return lhs;
 }
 
 void gen(Node *node) {
@@ -166,6 +181,10 @@ int main(int argc, char **argv) {
 
     tokenize(argv[1]);
     Node* node = expr();
+    if (tokens[pos].ty != TK_EOF) {
+        error("想定しないトークンです: %s",
+              tokens[pos].input);
+    }
 
     printf(".intel_syntax noprefix\n");
     printf(".global main\n");
