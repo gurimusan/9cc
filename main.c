@@ -3,14 +3,6 @@
 int pos = 0;
 Token tokens[100];
 
-void error(char *fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  vfprintf(stderr, fmt, ap);
-  fprintf(stderr, "\n");
-  exit(1);
-}
-
 // pが指している文字列をトークンに分割してtokensに保存する
 void tokenize(char *p) {
     int i = 0;
@@ -58,6 +50,11 @@ int main(int argc, char **argv) {
     if (argc != 2) {
         fprintf(stderr, "引数の個数が正しくありません。\n");
         return 1;
+    }
+
+    if (strcmp(argv[1], "-test") == 0) {
+        runtest();
+        return 0;
     }
 
     tokenize(argv[1]);
