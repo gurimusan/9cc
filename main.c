@@ -13,6 +13,24 @@ void tokenize(char *p) {
             continue;
         }
 
+        // ==の場合
+        if (strncmp(p, "==", 2) == 0) {
+            tokens[i].ty = TK_EQ;
+            tokens[i].input = p;
+            i++;
+            p += 2;
+            continue;
+        }
+
+        // !=の場合
+        if (strncmp(p, "!=", 2) == 0) {
+            tokens[i].ty = TK_NE;
+            tokens[i].input = p;
+            i++;
+            p += 2;
+            continue;
+        }
+
         if (strchr("+-*/;=()", *p)) {
             tokens[i].ty = *p;
             tokens[i].input = p;

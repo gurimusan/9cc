@@ -8,6 +8,7 @@ Node *code[100];
 
 void program();
 Node *assign();
+Node *equality();
 Node *expr();
 Node *mul();
 Node *term();
@@ -52,10 +53,23 @@ void program() {
 }
 
 Node *assign() {
-    Node *lhs = expr();
+    Node *lhs = equality();
     if (tokens[pos].ty == '=') {
         pos++;
-        return new_node('=', lhs, expr());
+        return new_node('=', lhs, equality());
+    }
+    return lhs;
+}
+
+Node *equality() {
+    Node *lhs = expr();
+    if (tokens[pos].ty == TK_EQ) {
+        pos++;
+        return new_node(ND_EQ, lhs, expr());
+    }
+    if (tokens[pos].ty == TK_NE) {
+        pos++;
+        return new_node(ND_NE, lhs, expr());
     }
     return lhs;
 }

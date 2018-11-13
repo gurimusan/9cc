@@ -9,6 +9,8 @@
 enum {
     TK_NUM = 256,   // 整数トークン
     TK_IDENT,       // 識別子
+    TK_EQ,          // ==
+    TK_NE,          // !=
     TK_EOF,         // 入力の終わりを表すトークン
 };
 
@@ -16,7 +18,7 @@ typedef struct {
     int ty;         // トークンの型
     int val;        // tyがTK_NUMの場合、その数値
     char *input;    // トークン文字列（エラーメッセージ用
-    char name;     // tyがTK_IDENTの場合のみ使う
+    char name;      // tyがTK_IDENTの場合のみ使う
 } Token;
 
 // トークナイズした結果のトークン列はこの配列に保存する
@@ -28,6 +30,8 @@ extern int pos;
 enum {
     ND_NUM = 256,   // 整数のノード型
     ND_IDENT,       // 識別子のノードの型
+    ND_EQ,          // ==
+    ND_NE,          // !=
 };
 
 typedef struct Node {

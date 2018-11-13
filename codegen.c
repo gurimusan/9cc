@@ -25,6 +25,30 @@ void gen(Node *node) {
         return;
     }
 
+    if (node->ty == ND_EQ) {
+        gen(node->lhs);
+        gen(node->rhs);
+        printf("  pop rdi\n");
+        printf("  pop rax\n");
+        printf("  cmp rdi, rax\n");
+        printf("  sete al\n");
+        printf("  movzb rax, al\n");
+        printf("  push rax\n");
+        return;
+    }
+
+    if (node->ty == ND_NE) {
+        gen(node->lhs);
+        gen(node->rhs);
+        printf("  pop rdi\n");
+        printf("  pop rax\n");
+        printf("  cmp rdi, rax\n");
+        printf("  setne al\n");
+        printf("  movzb rax, al\n");
+        printf("  push rax\n");
+        return;
+    }
+
     if (node->ty == '=') {
         gen_lval(node->lhs);
         gen(node->rhs);
