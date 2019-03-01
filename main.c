@@ -1,11 +1,12 @@
 #include "9cc.h"
 
 int pos = 0;
-Token tokens[100];
+Vector *tokens;
 
 // pが指している文字列をトークンに分割してtokensに保存する
 void tokenize(char *p) {
-    int i = 0;
+    tokens = new_vector();
+
     while (*p) {
         // 空白文字をスキップ
         if (isspace(*p)) {
@@ -15,44 +16,49 @@ void tokenize(char *p) {
 
         // ==の場合
         if (strncmp(p, "==", 2) == 0) {
-            tokens[i].ty = TK_EQ;
-            tokens[i].input = p;
-            i++;
+            Token *t = calloc(1, sizeof(Token));
+            t->ty = TK_EQ;
+            t->input = p;
+            vec_push(tokens, t);
             p += 2;
             continue;
         }
 
         // !=の場合
         if (strncmp(p, "!=", 2) == 0) {
-            tokens[i].ty = TK_NE;
-            tokens[i].input = p;
-            i++;
+            Token *t = calloc(1, sizeof(Token));
+            t->ty = TK_NE;
+            t->input = p;
+            vec_push(tokens, t);
             p += 2;
             continue;
         }
 
         if (strchr("+-*/;=()", *p)) {
-            tokens[i].ty = *p;
-            tokens[i].input = p;
-            i++;
+            Token *t = calloc(1, sizeof(Token));
+            t->ty = *p;
+            t->input = p;
+            vec_push(tokens, t);
             p++;
             continue;
         }
 
         if ('a' <= *p && *p <= 'z') {
-            tokens[i].ty = TK_IDENT;
-            tokens[i].input = p;
-            tokens[i].name = *p;
-            i++;
+            Token *t = calloc(1, sizeof(Token));
+            t->ty = TK_IDENT;
+            t->input = p;
+            t->name = *p;
+            vec_push(tokens, t);
             p++;
             continue;
         }
 
         if (isdigit(*p)) {
-            tokens[i].ty = TK_NUM;
-            tokens[i].input = p;
-            tokens[i].val = strtol(p, &p, 10);
-            i++;
+            Token *t = calloc(1, sizeof(Token));
+            t->ty = TK_NUM;
+            t->input = p;
+            t->val = strtol(p, &p, 10);
+            vec_push(tokens, t);
             continue;
         }
 
@@ -60,8 +66,10 @@ void tokenize(char *p) {
         exit(1);
     }
 
-    tokens[i].ty = TK_EOF;
-    tokens[i].input = p;
+    Token *t = calloc(1, sizeof(Token));
+    t->ty = TK_EOF;
+    t->input = p;
+    vec_push(tokens, t);
 }
 
 int main(int argc, char **argv) {

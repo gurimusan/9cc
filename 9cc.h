@@ -5,6 +5,25 @@
 #include <string.h>
 #include <stdarg.h>
 
+typedef struct {
+    void **data;
+    int capacity;
+    int len;
+} Vector;
+
+Vector *new_vector();
+
+void vec_push(Vector *vec, void *elem);
+
+typedef struct {
+    Vector *keys;
+    Vector *vals;
+} Map;
+
+Map *new_map();
+void map_put(Map *map, char *key, void *val);
+void *map_get(Map *map, char *key);
+
 // トークンの型を表す値
 enum {
     TK_NUM = 256,   // 整数トークン
@@ -22,8 +41,7 @@ typedef struct {
 } Token;
 
 // トークナイズした結果のトークン列はこの配列に保存する
-// 100個以上のトークンは来ないものとする
-extern Token tokens[100];
+extern Vector *tokens;
 
 extern int pos;
 
@@ -49,24 +67,5 @@ extern Node *code[100];
 void gen(Node *node);
 
 void error(char *fmt, ...);
-
-typedef struct {
-    void **data;
-    int capacity;
-    int len;
-} Vector;
-
-Vector *new_vector();
-
-void vec_push(Vector *vec, void *elem);
-
-typedef struct {
-    Vector *keys;
-    Vector *vals;
-} Map;
-
-Map *new_map();
-void map_put(Map *map, char *key, void *val);
-void *map_get(Map *map, char *key);
 
 void runtest();

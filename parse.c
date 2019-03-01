@@ -37,15 +37,18 @@ Node *new_node_ident(char name) {
 
 void program() {
     int i = 0;
+    Token *t;
     for (;;) {
         Node *stmt = assign();
-        if (tokens[pos].ty != ';') {
+        t = tokens->data[pos];
+        if (t->ty != ';') {
             error("コードの末尾に;がありません。");
         }
         code[i] = stmt;
 
         pos++;
-        if (tokens[pos].ty == TK_EOF) {
+        t = tokens->data[pos];
+        if (t->ty == TK_EOF) {
             break;
         }
         i++;
@@ -54,7 +57,8 @@ void program() {
 
 Node *assign() {
     Node *lhs = equality();
-    if (tokens[pos].ty == '=') {
+    Token *t = tokens->data[pos];
+    if (t->ty == '=') {
         pos++;
         return new_node('=', lhs, equality());
     }
@@ -63,11 +67,14 @@ Node *assign() {
 
 Node *equality() {
     Node *lhs = expr();
-    if (tokens[pos].ty == TK_EQ) {
+    Token *t;
+
+    t = tokens->data[pos];
+    if (t->ty == TK_EQ) {
         pos++;
         return new_node(ND_EQ, lhs, expr());
     }
-    if (tokens[pos].ty == TK_NE) {
+    if (t->ty == TK_NE) {
         pos++;
         return new_node(ND_NE, lhs, expr());
     }
@@ -76,11 +83,15 @@ Node *equality() {
 
 Node *expr() {
     Node *lhs = mul();
-    if (tokens[pos].ty == '+') {
+    Token *t;
+
+    t = tokens->data[pos];
+    if (t->ty == '+') {
         pos++;
         return new_node('+', lhs, expr());
     }
-    if (tokens[pos].ty == '-') {
+    t = tokens->data[pos];
+    if (t->ty == '-') {
         pos++;
         return new_node('-', lhs, expr());
     }
@@ -89,11 +100,14 @@ Node *expr() {
 
 Node *mul() {
     Node *lhs = term();
-    if (tokens[pos].ty == '*') {
+    Token *t;
+
+    t = tokens->data[pos];
+    if (t->ty == '*') {
         pos++;
         return new_node('*', lhs, mul());
     }
-    if (tokens[pos].ty == '/') {
+    if (t->ty == '/') {
         pos++;
         return new_node('/', lhs, mul());
     }
@@ -101,22 +115,28 @@ Node *mul() {
 }
 
 Node *term() {
-    if (tokens[pos].ty == TK_NUM) {
-        return new_node_num(tokens[pos++].val);
+    Token *t;
+
+    t = tokens->data[pos];
+    if (t->ty == TK_NUM) {
+        pos++;
+        return new_node_num(t->val);
     }
-    if (tokens[pos].ty == TK_IDENT) {
-        return new_node_ident(tokens[pos++].name);
+    if (t->ty == TK_IDENT) {
+        pos++;
+        return new_node_ident(t->name);
     }
-    if (tokens[pos].ty != '(') {
+    if (t->ty != '(') {
         error("数値でも開きカッコでもないトークンです: %s",
-              tokens[pos].input);
+              t->input);
     }
 
     pos++;
     Node *node = expr();
-    if (tokens[pos].ty != ')') {
+    t = tokens->data[pos];
+    if (t->ty != ')') {
         error("開きカッコに対応する閉じカッコがありません: %s",
-              tokens[pos].input);
+              t->input);
     }
     pos++;
     return node;
